@@ -33,15 +33,19 @@ import '@/pages/calendar/calendar.css';
 import { useDisclosure } from '@heroui/react';
 import { BluntModal } from './BluntModal';
 import { Api } from '@/domain/core/constants';
+import { WeedDate, WeedDates } from '@/domain/models/weedDate.model';
+import { WeedDatesService } from '@/domain/services/weeddates.service';
 
 export default function Calendar() {
 	const [datee, setDatee] = useState<Date | undefined>(undefined);
 	const { isOpen, onOpen, onOpenChange } = useDisclosure();
+	const [weedDates, setWeedDates] = useState<WeedDates | undefined>(undefined);
 	useEffect(() => {
 		updateDate(new Date());
 	}, []);
 
 	useEffect(() => {
+		WeedDatesService.getMyWeedDates(new Date()).then(setWeedDates);
 		// Hacer fetching de los datos del mes con el token del usuario y la fecha de inicio y fin
 	}, [datee]);
 
@@ -125,7 +129,8 @@ export default function Calendar() {
 										let dayDate = new Date(datee);
 										dayDate.setDate(datee.getDate() + (week * 7 + day));
 										// Todo obtener el weedDate haciendo un get al hashMap de weedDates
-										const wDay = undefined;
+										let wDay = undefined;
+										if (weedDates) wDay = weedDates[dayDate.toISOString()];
 										return (
 											<Day
 												key={dayDate.getTime()}
