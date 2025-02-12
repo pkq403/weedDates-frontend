@@ -12,7 +12,7 @@ import { create } from 'zustand';
 import { useDefaultId } from '@/domain/hooks/useId';
 import { useBodyScrollLock } from '@/domain/hooks/useBodyScrollLock';
 import { useHandleEscKey } from '@/domain/hooks/useHandleEscKey';
-import { Transition } from './transition.component';
+import { Transition } from './Transition';
 
 type IModalContext = {
 	open: boolean;

@@ -1,5 +1,5 @@
 
-import { Navbar } from "@/components/navbar";
+import { Navbar } from "@/components/Navbar";
 import { subtitle } from "@/components/primitives";
 export default function DefaultLayout({
   children,

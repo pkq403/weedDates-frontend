@@ -10,7 +10,7 @@ export class AuthorizationService {
 		try {
 			return AuthorizationService.getAuthorization();
 		} catch (err) {
-			return undefined;
+			throw new Error('Authorization not found!');
 		}
 	}
 
@@ -38,22 +38,26 @@ export class AuthorizationService {
 	 * @returns
 	 */
 	static login({
-		password,
 		username,
+		password,
 	}: {
-		password: string;
 		username: string;
+		password: string;
 	}): Promise<Token> {
+		const data = new URLSearchParams({ username, password });
 		return fetch(Api.baseURL + Api.login, {
 			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ username, password }),
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+			},
+			body: data.toString(),
 		})
-			.then((r) => r.json())
+			.then((r) => {
+				return r.json();
+			})
 			.then((token) => {
 				AuthorizationService.saveAuthorization({
 					...token,
-					expires_in: 60_000,
 				});
 				return token;
 			});

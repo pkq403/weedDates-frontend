@@ -1,5 +1,5 @@
 import DefaultLayout from "@/layouts/default";
-import Calendar from "./calendar-component";
+import Calendar from "./Calendar";
 
 export default function CalendarPage() {
     return <DefaultLayout>

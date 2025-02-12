@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import DayTable from './dayTable-component';
+import Day from './DayTableField';
 import { Button, ButtonGroup } from '@heroui/button';
 import { Divider } from '@heroui/divider';
 import { ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons';
@@ -31,7 +31,8 @@ const MONTHS = [
 ];
 import '@/pages/calendar/calendar.css';
 import { useDisclosure } from '@heroui/react';
-import { BluntModal } from './bluntModal-component';
+import { BluntModal } from './BluntModal';
+import { Api } from '@/domain/core/constants';
 
 export default function Calendar() {
 	const [datee, setDatee] = useState<Date | undefined>(undefined);
@@ -123,8 +124,15 @@ export default function Calendar() {
 									{Array.from(Array(DAYSPERWEEK).keys()).map((day: any) => {
 										let dayDate = new Date(datee);
 										dayDate.setDate(datee.getDate() + (week * 7 + day));
-                    const wDay = null;
-										return <DayTable key={dayDate.getTime()} weedDay={wDay} onOpen={onOpen} />;
+										// Todo obtener el weedDate haciendo un get al hashMap de weedDates
+										const wDay = undefined;
+										return (
+											<Day
+												key={dayDate.getTime()}
+												weedDay={wDay}
+												onOpen={onOpen}
+											/>
+										);
 									})}
 								</tr>
 							);
