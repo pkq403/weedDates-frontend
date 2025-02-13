@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import Day from './DayTableField';
+import DayTd from './DayTd';
 import { Button, ButtonGroup } from '@heroui/button';
 import { Divider } from '@heroui/divider';
 import { ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons';
@@ -32,22 +32,25 @@ const MONTHS = [
 import '@/pages/calendar/calendar.css';
 import { useDisclosure } from '@heroui/react';
 import { BluntModal } from './BluntModal';
-import { Api } from '@/domain/core/constants';
 import { WeedDate, WeedDates } from '@/domain/models/weedDate.model';
 import { WeedDatesService } from '@/domain/services/weeddates.service';
+import { onlyStringDate } from '@/domain/utils/common.utils';
+
+const isDateInMonth = (datee: Date, month?: number): boolean =>
+	datee.getMonth() === month;
 
 export default function Calendar() {
+	const [reload, setReload] = useState(false);
+	const [realDate, setRealDate] = useState<Date | undefined>(undefined);
 	const [datee, setDatee] = useState<Date | undefined>(undefined);
+	const [activeMonth, setActiveMonth] = useState<number | undefined>(undefined);
+
 	const { isOpen, onOpen, onOpenChange } = useDisclosure();
 	const [weedDates, setWeedDates] = useState<WeedDates | undefined>(undefined);
-	useEffect(() => {
-		updateDate(new Date());
-	}, []);
 
-	useEffect(() => {
-		WeedDatesService.getMyWeedDates(new Date()).then(setWeedDates);
-		// Hacer fetching de los datos del mes con el token del usuario y la fecha de inicio y fin
-	}, [datee]);
+	const updateWeedDates = useCallback((datee: Date) => {
+		WeedDatesService.getMyWeedDates(datee).then(setWeedDates);
+	}, []);
 
 	const realMonthIndex = useMemo(() => {
 		if (!datee) return null;
@@ -60,11 +63,12 @@ export default function Calendar() {
 			baseDate.getMonth(),
 			1
 		);
-
+		setRealDate(firstMonthDate);
+		updateWeedDates(firstMonthDate);
 		let firstMonthfirstDay = firstMonthDate.getDay();
 		if (firstMonthfirstDay == 0) firstMonthfirstDay = 1;
 		if (firstMonthfirstDay != 1) firstMonthfirstDay -= 1;
-
+		setActiveMonth(baseDate.getMonth());
 		setDatee(
 			new Date(
 				baseDate.getFullYear(),
@@ -77,17 +81,29 @@ export default function Calendar() {
 	const slideAMonth = useCallback(
 		(slide: number) => {
 			if (!datee) return;
-			let monthShift = datee.getMonth() + slide + 1;
-			if (datee.getDate() == 1 && datee.getDay() == 1) monthShift -= 1;
-			updateDate(new Date(datee.getFullYear(), monthShift, 1));
+			let nextMonth = datee.getMonth() + slide + 1;
+			if (datee.getDate() == 1 && datee.getDay() == 1) nextMonth -= 1;
+			setActiveMonth(nextMonth);
+			updateDate(new Date(datee.getFullYear(), nextMonth, 1));
 		},
 		[datee]
 	);
 
+	useEffect(() => {
+		updateDate(new Date());
+	}, []);
+
+	useEffect(() => {
+		if (reload && realDate) {
+			setReload(false);
+			updateDate(realDate);
+		}
+	}, [reload]);
+	
 	return (
-		<div className='flex flex-col gap-2 p-5'>
+		<div className='flex flex-col gap-2 p-0 sm:p-5'>
 			<div className='flex flex-row justify-between'>
-				<span className='text-3xl font-semibold font-sans text-brokenwhite-500'>
+				<span className='lg:text-5xl md:text-3xl sm:text-base font-semibold font-sans text-brokenwhite-500'>
 					{realMonthIndex !== null &&
 						datee &&
 						`${MONTHS[realMonthIndex]} ${datee.getFullYear() + (realMonthIndex === 0 ? 1 : 0)}`}
@@ -97,8 +113,7 @@ export default function Calendar() {
 						onPress={() => {
 							slideAMonth(-1);
 						}}
-						className='bg-primary rounded-l-md text-white font-sans font-semibold'
-						size='sm'>
+						className='bg-primary min-w-2 sm:min-w-[10vh] h-6 sm:h-10 rounded-l-md  text-white font-sans font-semibold'>
 						<ChevronLeftIcon />
 					</Button>
 					<Divider orientation='vertical' />
@@ -106,8 +121,7 @@ export default function Calendar() {
 						onPress={() => {
 							slideAMonth(1);
 						}}
-						className='bg-primary rounded-r-md text-white font-sans font-semibold'
-						size='sm'>
+						className='bg-primary rounded-r-md min-w-2 sm:min-w-[10vh] h-6 sm:h-10 text-white font-sans font-semibold'>
 						<ChevronRightIcon />
 					</Button>
 				</ButtonGroup>
@@ -116,7 +130,9 @@ export default function Calendar() {
 				<thead>
 					<tr>
 						{WEEKDAYS.map((weekday) => (
-							<th key={weekday}>{weekday}</th>
+							<th first-letter={weekday.slice(0, 2)} key={weekday}>
+								<span>{weekday}</span>
+							</th>
 						))}
 					</tr>
 				</thead>
@@ -128,14 +144,19 @@ export default function Calendar() {
 									{Array.from(Array(DAYSPERWEEK).keys()).map((day: any) => {
 										let dayDate = new Date(datee);
 										dayDate.setDate(datee.getDate() + (week * 7 + day));
+										dayDate.setHours(1);
 										// Todo obtener el weedDate haciendo un get al hashMap de weedDates
-										let wDay = undefined;
-										if (weedDates) wDay = weedDates[dayDate.toISOString()];
+										const wDay: WeedDate = { date: dayDate, blunts: 0 };
+										if (weedDates) {
+											wDay.blunts =
+												weedDates[onlyStringDate(dayDate)]?.blunts || 0;
+										}
 										return (
-											<Day
+											<DayTd
 												key={dayDate.getTime()}
 												weedDay={wDay}
 												onOpen={onOpen}
+												active={isDateInMonth(dayDate, activeMonth)}
 											/>
 										);
 									})}
@@ -147,7 +168,7 @@ export default function Calendar() {
 			<BluntModal
 				isOpen={isOpen}
 				onOpenChange={onOpenChange}
-				onSubmit={() => {}}
+				setFatherReload={() => {setReload(true)}}
 			/>
 		</div>
 	);

@@ -3,5 +3,5 @@
 @tailwind utilities;
 
 :root {
-    @apply bg-killarney-800
+    @apply bg-killarney-800 text-white;
 }

@@ -21,3 +21,7 @@ export function* createIdGenerator(): Generator<
 		args = yield _id;
 	}
 }
+
+export const onlyStringDate = (datee: Date): string => {
+	return datee.toISOString().split('T')[0];
+};

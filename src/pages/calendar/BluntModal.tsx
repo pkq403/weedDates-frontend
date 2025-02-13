@@ -8,18 +8,29 @@ import {
 	Button,
 } from '@heroui/react';
 import JointIcon from '@/assets/joint.svg';
+import { useCallback } from 'react';
+import { useBluntDateStore } from '@/domain/store/dateBluntsStore';
+import { WeedDatesService } from '@/domain/services/weeddates.service';
 
 export function BluntModal({
 	isOpen,
 	onOpenChange,
-	onSubmit,
+	setFatherReload = () => {}
 }: {
 	isOpen: boolean;
 	onOpenChange: () => void;
-	onSubmit: () => void;
+	setFatherReload: () => void;
 }) {
+	const { date, blunts } = useBluntDateStore();
+	const setBlunts = useBluntDateStore(s => s.setBlunts);
+	const onSubmit = useCallback(() => {
+		if (date !== undefined && blunts !== undefined) {
+			WeedDatesService.postWeedDate(date, blunts);
+			setFatherReload();
+		}
+	}, [date, blunts]);
 	return (
-		<Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+		<Modal size='md' isOpen={isOpen} onOpenChange={onOpenChange}>
 			<ModalContent className='bg-primary'>
 				{(onClose) => (
 					<>
@@ -33,7 +44,7 @@ export function BluntModal({
 									size='sm'
 									label='blunts'
 									type='number'
-									onChange={() => {}}
+									onValueChange={(s: string) => setBlunts(Number(s))}
 								/>
 							</div>
 						</ModalBody>
