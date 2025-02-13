@@ -53,7 +53,6 @@ export class AuthorizationService {
 			body: data.toString(),
 		})
 			.then((r) => {
-				console.log(r)
 				return r.json();
 			})
 			.then((token) => {
