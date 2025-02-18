@@ -62,4 +62,18 @@ export class AuthorizationService {
 				return token;
 			});
 	}
+	static register({
+		username,
+		password,
+	}: {
+		username: string;
+		password: string;
+	}): Promise<boolean> {
+		return fetch(Api.baseURL + Api.register, {
+			method: 'POST',
+			headers: {'Content-Type': 'application/json'},
+			body: JSON.stringify({username, password})
+		}).then(r => r.status === 201 ? true : false)
+		.catch(_ => false);
+	}
 }

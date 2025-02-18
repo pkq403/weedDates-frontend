@@ -19,7 +19,7 @@ export default function DayTd({
 		setDate(weedDay.date);
 		setBlunts(weedDay.blunts);
 		onOpen();
-	}, []);
+	}, [weedDay]);
 	return (
 		<td
 			className={cn(active ? 'bg-primary-200' : 'bg-slate-400')}

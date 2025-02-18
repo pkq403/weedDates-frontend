@@ -28,7 +28,7 @@ module.exports = {
 							DEFAULT: '#114B3D',
 						},
 						terciary: {
-							500: '#87B573',
+							500: '#ced9d0',
 						},
 						brokenwhite: {
 							500: '#efeee5',

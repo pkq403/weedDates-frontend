@@ -3,11 +3,13 @@ import LoginPage from "@/pages/login/LoginPage";
 
 import { AuthorizationService } from "../services/auth/authorization.service";
 import { createBrowserRouter, redirect } from "react-router-dom";
+import RegisterPage from "@/pages/register/RegisterPage";
 
 export enum Routes {
     Root = '/',
     Home = '/',
     Login = '/login',
+    Register = '/register',
     Calendar = '/calendar'
 }
 
@@ -33,5 +35,9 @@ export const router = createBrowserRouter([
     {
         path: Routes.Login,
         element: <LoginPage />
+    },
+    {
+        path: Routes.Register,
+        element: <RegisterPage />
     }
 ])

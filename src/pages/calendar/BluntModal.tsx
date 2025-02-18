@@ -29,6 +29,7 @@ export function BluntModal({
 			setFatherReload();
 		}
 	}, [date, blunts]);
+
 	return (
 		<Modal size='md' isOpen={isOpen} onOpenChange={onOpenChange}>
 			<ModalContent className='bg-primary'>
@@ -44,6 +45,7 @@ export function BluntModal({
 									size='sm'
 									label='blunts'
 									type='number'
+									defaultValue={blunts?.toString()}
 									onValueChange={(s: string) => setBlunts(Number(s))}
 								/>
 							</div>
